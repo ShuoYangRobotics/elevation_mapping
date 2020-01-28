@@ -93,6 +93,8 @@ public:
    */
   virtual bool filterPointCloudSensorType(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud);
 
+  bool filterPointCloudLegBox(const pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloud);
+
   /*!
    * Computes the elevation map height variances for each point in a point cloud with the
    * sensor model and the robot pose covariance.
@@ -174,6 +176,8 @@ public:
 
   //! Use VoxelGrid filter to cleanup pointcloud if true.
   bool applyVoxelGridFilter_;
+  //! Use LegBox filter to cleanup pointcloud if true.
+  bool applyLegBoxFilter_;
 };
 
 } /* namespace elevation_mapping */
