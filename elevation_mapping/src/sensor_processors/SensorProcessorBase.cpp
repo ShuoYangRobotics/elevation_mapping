@@ -78,12 +78,12 @@ bool SensorProcessorBase::process(
   if (!transformPointCloud(pointCloudSensorFrame, pointCloudMapFrame, mapFrameId_)) return false;  
 
   // remove leg
-  if (pointCloudInput->header.frame_id == "camera_downward_depth_optical_frame") {
+  // if (pointCloudInput->header.frame_id == "camera_downward_depth_optical_frame") {
     // should tranform it to map and then do the compare
     filterPointCloudLegBox(pointCloudMapFrame);
-  }
-  // transform filtered map points back to sensor so their size align with each other
-  if (!transformPointCloud(pointCloudMapFrame, pointCloudSensorFrame, sensorFrameId_)) return false; 
+    // transform filtered map points back to sensor so their size align with each other
+    if (!transformPointCloud(pointCloudMapFrame, pointCloudSensorFrame, sensorFrameId_)) return false; 
+  // }
 
 
   std::vector<pcl::PointCloud<pcl::PointXYZRGB>::Ptr> pointClouds({pointCloudMapFrame, pointCloudSensorFrame});
@@ -240,8 +240,8 @@ bool SensorProcessorBase::filterPointCloudLegBox(const pcl::PointCloud<pcl::Poin
     // apply first filter
     cropbox_rotation1 = foot0_pose_in_map.rotation().cast<float>();
     cropbox_translation1 = foot0_pose_in_map.translation().cast<float>();
-    crop_min1 = cropbox_translation1 + Eigen::Vector3f(-0.06,-0.06,0.05); 
-    crop_max1 = cropbox_translation1 + Eigen::Vector3f(0.06,0.06,0.4);
+    crop_min1 = cropbox_translation1 + cropbox_rotation1* Eigen::Vector3f(-0.09,-0.09,0.05); 
+    crop_max1 = cropbox_translation1 + cropbox_rotation1* Eigen::Vector3f(0.09,0.09,0.9);
 
     pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond1 (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
     pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond1_or_outside_z (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
@@ -280,8 +280,8 @@ bool SensorProcessorBase::filterPointCloudLegBox(const pcl::PointCloud<pcl::Poin
     // apply second filter    
     cropbox_rotation2 = foot1_pose_in_map.rotation().cast<float>();
     cropbox_translation2 = foot1_pose_in_map.translation().cast<float>(); 
-    crop_min2 = cropbox_translation2 + Eigen::Vector3f(-0.06,-0.06,0.05); 
-    crop_max2 = cropbox_translation2 + Eigen::Vector3f(0.06,0.06,0.4);
+    crop_min2 = cropbox_translation2 + Eigen::Vector3f(-0.09,-0.09,0.05); 
+    crop_max2 = cropbox_translation2 + Eigen::Vector3f(0.09,0.09,0.9);
     std::cout << crop_min2.transpose() << std::endl;
     std::cout << crop_max2.transpose() << std::endl;
 
