@@ -42,7 +42,7 @@ SensorProcessorBase::~SensorProcessorBase() {}
 
 bool SensorProcessorBase::readParameters()
 {
-  nodeHandle_.param("sensor_frame_id", sensorFrameId_, std::string("/camera_downward_depth_optical_frame")); // TODO Fail if parameters are not found.
+  nodeHandle_.param("sensor_frame_id", sensorFrameId_, std::string("/velodyne")); // TODO Fail if parameters are not found.
   nodeHandle_.param("robot_base_frame_id", robotBaseFrameId_, std::string("/base_link"));
   nodeHandle_.param("map_frame_id", mapFrameId_, std::string("/world"));
 
@@ -240,8 +240,8 @@ bool SensorProcessorBase::filterPointCloudLegBox(const pcl::PointCloud<pcl::Poin
     // apply first filter
     cropbox_rotation1 = foot0_pose_in_map.rotation().cast<float>();
     cropbox_translation1 = foot0_pose_in_map.translation().cast<float>();
-    crop_min1 = cropbox_translation1 + cropbox_rotation1* Eigen::Vector3f(-0.09,-0.09,0.05); 
-    crop_max1 = cropbox_translation1 + cropbox_rotation1* Eigen::Vector3f(0.09,0.09,0.9);
+    crop_min1 = cropbox_translation1 + cropbox_rotation1* Eigen::Vector3f(-0.12,-0.12,0.02); 
+    crop_max1 = cropbox_translation1 + cropbox_rotation1* Eigen::Vector3f(0.12,0.12,2);
 
     pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond1 (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
     pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond1_or_outside_z (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
@@ -280,8 +280,8 @@ bool SensorProcessorBase::filterPointCloudLegBox(const pcl::PointCloud<pcl::Poin
     // apply second filter    
     cropbox_rotation2 = foot1_pose_in_map.rotation().cast<float>();
     cropbox_translation2 = foot1_pose_in_map.translation().cast<float>(); 
-    crop_min2 = cropbox_translation2 + Eigen::Vector3f(-0.09,-0.09,0.05); 
-    crop_max2 = cropbox_translation2 + Eigen::Vector3f(0.09,0.09,0.9);
+    crop_min2 = cropbox_translation2 + Eigen::Vector3f(-0.12,-0.12,0.02); 
+    crop_max2 = cropbox_translation2 + Eigen::Vector3f(0.12,0.12,2);
     std::cout << crop_min2.transpose() << std::endl;
     std::cout << crop_max2.transpose() << std::endl;
 
