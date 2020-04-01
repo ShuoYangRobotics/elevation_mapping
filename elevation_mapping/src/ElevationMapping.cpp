@@ -143,7 +143,7 @@ bool ElevationMapping::readParameters()
   ROS_ASSERT(!maxNoUpdateDuration_.isZero());
 
   double timeTolerance;
-  nodeHandle_.param("time_tolerance", timeTolerance, 5.0);
+  nodeHandle_.param("time_tolerance", timeTolerance, 0.0);
   timeTolerance_.fromSec(timeTolerance);
 
   double fusedMapPublishingRate;
