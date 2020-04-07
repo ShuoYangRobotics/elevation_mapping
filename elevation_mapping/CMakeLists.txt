@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
   kindr
   kindr_ros
+  costmap_2d
 )
 
 ## System dependencies are found with CMake's conventions

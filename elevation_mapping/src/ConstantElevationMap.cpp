@@ -4,6 +4,10 @@
 
 #include "elevation_mapping/ElevationMap.hpp"
 #include "grid_map_core/GridMap.hpp"
+#include "grid_map_costmap_2d/grid_map_costmap_2d.hpp"
+
+#include <costmap_2d/costmap_2d.h>
+#include <costmap_2d/costmap_2d_ros.h>
 
 #include <ros/ros.h>
 
@@ -35,15 +39,34 @@ class ConstantElevationMap {
     map_.publishRawElevationMap();
     map_.publishFusedElevationMap();
   }
+  void pubCostCB(const ros::TimerEvent&) {
+//    grid_map::GridMap& grid_map_raw = map_.getRawGridMap();
+//    costmap_2d::Costmap2D outputCostMap;
+//    grid_map::Costmap2DConverter<grid_map::GridMap> costmap2dConverter_;
+//    costmap2dConverter_.initializeFromGridMap(map_.getRawGridMap(), outputCostMap);
+//    costmap2dConverter_.setCostmap2DFromGridMap(map_.getRawGridMap(), "elevation", outputCostMap);
+    nav_msgs::OccupancyGrid occupancyGrid;
+    const float minHeight = -1, maxHeight = 1;
+    grid_map::GridMapRosConverter::toOccupancyGrid(map_.getRawGridMap(),
+        "elevation", minHeight, maxHeight, occupancyGrid);
+    pub_occupancy_.publish(occupancyGrid);
+  }
   void run() {
     pub_elevation_timer_ = nh_.createTimer(ros::Duration(1.0/5),
                                            &ConstantElevationMap::pubElevationCB, this);
+    pub_costmap_timer_ = nh_.createTimer(ros::Duration(1.0/5),
+                                           &ConstantElevationMap::pubCostCB,
+                                           this);
+    pub_occupancy_ = nh_.advertise<nav_msgs::OccupancyGrid>
+        ("occ", 10);
     ros::spin();
   }
  private:
   ros::NodeHandle nh_;
   elevation_mapping::ElevationMap map_;
   ros::Timer pub_elevation_timer_;
+  ros::Timer pub_costmap_timer_;
+  ros::Publisher pub_occupancy_;
 };
 
 
