@@ -95,6 +95,15 @@ target_link_libraries(${PROJECT_NAME}
   ${PROJECT_NAME}_library
 )
 
+
+add_executable(constant_elevation_map
+        src/ConstantElevationMap.cpp
+        )
+
+target_link_libraries(constant_elevation_map
+        ${PROJECT_NAME}_library
+        )
+
 #############
 ## Testing ##
 #############
