@@ -22,6 +22,7 @@ class ConstantElevationMap {
         0.0));
     // Set Zero for both layers: [elevation] and [variance].
     map_.setRawSubmapHeight(0, 2, 2, 0);
+    ROS_INFO("Map Initialized.");
   }
   void update() {
     ROS_INFO("Update the raw map.");
@@ -46,7 +47,7 @@ class ConstantElevationMap {
 //    costmap2dConverter_.initializeFromGridMap(map_.getRawGridMap(), outputCostMap);
 //    costmap2dConverter_.setCostmap2DFromGridMap(map_.getRawGridMap(), "elevation", outputCostMap);
     nav_msgs::OccupancyGrid occupancyGrid;
-    const float minHeight = -1, maxHeight = 1;
+    const float minHeight = 0, maxHeight = 0.1;
     grid_map::GridMapRosConverter::toOccupancyGrid(map_.getRawGridMap(),
         "elevation", minHeight, maxHeight, occupancyGrid);
     pub_occupancy_.publish(occupancyGrid);
@@ -58,7 +59,7 @@ class ConstantElevationMap {
                                            &ConstantElevationMap::pubCostCB,
                                            this);
     pub_occupancy_ = nh_.advertise<nav_msgs::OccupancyGrid>
-        ("occ", 10);
+        ("map", 10);
     ros::spin();
   }
  private:
