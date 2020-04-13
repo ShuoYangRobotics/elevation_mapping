@@ -55,7 +55,7 @@ bool SensorProcessorBase::readParameters()
   nodeHandle_.param("sensor_processor/ignore_points_below", ignorePointsLowerThreshold_, -std::numeric_limits<double>::infinity());
 
   nodeHandle_.param("sensor_processor/apply_voxelgrid_filter", applyVoxelGridFilter_, false);
-  nodeHandle_.param("sensor_processor/apply_leg_box", applyLegBoxFilter_, true);
+  nodeHandle_.param("sensor_processor/apply_leg_box", applyLegBoxFilter_, false);
   nodeHandle_.param("sensor_processor/voxelgrid_filter_size", sensorParameters_["voxelgrid_filter_size"], 0.0);
   return true;
 }
