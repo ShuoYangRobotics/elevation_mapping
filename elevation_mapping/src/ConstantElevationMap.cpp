@@ -4,7 +4,6 @@
 
 #include "elevation_mapping/ElevationMap.hpp"
 #include "grid_map_core/GridMap.hpp"
-#include "grid_map_costmap_2d/grid_map_costmap_2d.hpp"
 
 #include <costmap_2d/costmap_2d.h>
 #include <costmap_2d/costmap_2d_ros.h>
