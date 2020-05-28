@@ -1,0 +1,12 @@
+<launch>
+
+<node pkg="elevation_mapping_demos" type="normal_filter"
+      name="normal_filter" output="screen">
+    <rosparam command="load"
+              file="$(find elevation_mapping_demos)/config/normal_filter.yaml" />
+</node>
+
+<!-- Launch the grid map visualizer. -->
+<node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen" />
+
+</launch>

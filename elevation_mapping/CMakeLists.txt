@@ -19,7 +19,6 @@ find_package(catkin REQUIRED COMPONENTS
   kindr
   kindr_ros
   costmap_2d
-  grid_map_filters
 )
 
 ## System dependencies are found with CMake's conventions
