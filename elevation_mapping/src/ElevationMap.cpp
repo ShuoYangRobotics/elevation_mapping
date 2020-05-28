@@ -42,6 +42,8 @@ ElevationMap::ElevationMap(ros::NodeHandle nodeHandle)
 
   elevationMapRawPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>("elevation_map_raw", 1);
   elevationMapFusedPublisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>("elevation_map", 1);
+  pub_occupancy_ = nodeHandle_.advertise<nav_msgs::OccupancyGrid>("map", 1);
+
   if (!underlyingMapTopic_.empty()) underlyingMapSubscriber_ =
       nodeHandle_.subscribe(underlyingMapTopic_, 1, &ElevationMap::underlyingMapCallback, this);
   // TODO if (enableVisibilityCleanup_) when parameter cleanup is ready.
@@ -510,6 +512,14 @@ bool ElevationMap::publishFusedElevationMap()
   GridMapRosConverter::toMessage(fusedMapCopy, message);
   elevationMapFusedPublisher_.publish(message);
   ROS_DEBUG("Elevation map (fused) has been published.");
+
+  nav_msgs::OccupancyGrid occupancyGrid;
+  const float minHeight = 0, maxHeight = 1.0;
+  grid_map::GridMapRosConverter::toOccupancyGrid(fusedMap_, "elevation",
+      minHeight, maxHeight, occupancyGrid);
+  // Default frame_id starts with "/", not accepted by costmap_2d.
+  occupancyGrid.header.frame_id = "world";
+  pub_occupancy_.publish(occupancyGrid);
   return true;
 }
 

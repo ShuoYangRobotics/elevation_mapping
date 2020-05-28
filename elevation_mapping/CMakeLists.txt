@@ -18,6 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
   kindr
   kindr_ros
+  costmap_2d
 )
 
 ## System dependencies are found with CMake's conventions
@@ -94,6 +95,15 @@ add_executable(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME}
   ${PROJECT_NAME}_library
 )
+
+
+add_executable(constant_elevation_map
+        src/ConstantElevationMap.cpp
+        )
+
+target_link_libraries(constant_elevation_map
+        ${PROJECT_NAME}_library
+        )
 
 #############
 ## Testing ##
