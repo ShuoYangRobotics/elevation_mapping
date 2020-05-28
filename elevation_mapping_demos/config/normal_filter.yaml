@@ -3,10 +3,10 @@ grid_map_filters:
   - name: surface_normals_area
     type: gridMapFilters/NormalVectorsFilter
     params:
-      input_layer: elevation_map
+      input_layer: elevation
       algorithm: area
       output_layers_prefix: normal_area_
-      radius: 0.05
+      radius: 0.1
       normal_vector_positive_axis: z
       parallelization_enabled: true
       thread_number: 4

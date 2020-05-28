@@ -7,6 +7,8 @@
 </node>
 
 <!-- Launch the grid map visualizer. -->
-<node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" output="screen" />
+<node pkg="grid_map_visualization" type="grid_map_visualization" name="grid_map_visualization" clear_params="true" output="screen" >
+    <rosparam command="load" file="$(find elevation_mapping_demos)/config/normal_filter_viz.yaml" />
+</node>
 
 </launch>

@@ -17,7 +17,7 @@ class NormalFilter {
     nodeHandle_(nodeHandle), filterChain_("grid_map::GridMap") {
 
     subscriber_ = nodeHandle_.subscribe("/elevation_mapping/elevation_map", 1, &NormalFilter::callback, this);
-    publisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>("elevation_mapping/normal_map", 1, true);
+    publisher_ = nodeHandle_.advertise<grid_map_msgs::GridMap>("/normal_map", 1, true);
     filterChainParametersName_ = std::string("grid_map_filters");
 
     // Setup filter chain.
