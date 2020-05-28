@@ -1,0 +1,37 @@
+grid_map_topic: /normal_map
+
+grid_map_visualizations:
+
+  - name: elevation_points
+    type: point_cloud
+    params:
+      layer: elevation
+
+  - name: map_region
+    type: map_region
+    params:
+      color: 3289650
+      line_width: 0.003
+
+  - name: elevation_grid
+    type: occupancy_grid
+    params:
+      layer: elevation
+      data_min: 0.08
+      data_max: -0.16
+
+  - name: surface_normals_area
+    type: vectors
+    params:
+      layer_prefix: normal_area_
+      position_layer: elevation
+      scale: 0.1
+      line_width: 0.01
+      color: 65280 # green
+
+  - name: elevation_cells
+    type: grid_cells
+    params:
+      layer: elevation
+      lower_threshold: -0.08
+      upper_threshold: 0.0

@@ -288,6 +288,7 @@ class ElevationMap
   ros::Publisher elevationMapRawPublisher_;
   ros::Publisher elevationMapFusedPublisher_;
   ros::Publisher visbilityCleanupMapPublisher_;
+  ros::Publisher pub_occupancy_;
 
   //! Mutex lock for fused map.
   boost::recursive_mutex fusedMapMutex_;
