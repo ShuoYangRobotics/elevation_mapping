@@ -74,15 +74,16 @@ bool SensorProcessorBase::process(
   transformPointCloud(pointCloudInput, pointCloudSensorFrame, sensorFrameId_);
   filterPointCloud(pointCloudSensorFrame);
   filterPointCloudSensorType(pointCloudSensorFrame);
+  filterPointCloudLegBox(pointCloudSensorFrame);
 
   if (!transformPointCloud(pointCloudSensorFrame, pointCloudMapFrame, mapFrameId_)) return false;  
 
   // remove leg
   // if (pointCloudInput->header.frame_id == "camera_downward_depth_optical_frame") {
     // should tranform it to map and then do the compare
-    filterPointCloudLegBox(pointCloudMapFrame);
+    
     // transform filtered map points back to sensor so their size align with each other
-    if (!transformPointCloud(pointCloudMapFrame, pointCloudSensorFrame, sensorFrameId_)) return false; 
+    // if (!transformPointCloud(pointCloudMapFrame, pointCloudSensorFrame, sensorFrameId_)) return false; 
   // }
 
 
@@ -207,29 +208,30 @@ bool SensorProcessorBase::filterPointCloudLegBox(const pcl::PointCloud<pcl::Poin
   // remove points close to leg
   if (applyLegBoxFilter_) {
     // define two boxes around foot0 and foot1
-    Eigen::Affine3d foot0_pose_in_map, foot1_pose_in_map;
-    try {  
-      ros::Time timeStamp;
-      tf::StampedTransform transformTf;
-      timeStamp.fromNSec(1000 * pointCloud->header.stamp);
+    // Eigen::Affine3d base_pose_in_map;
+    // // , foot1_pose_in_map;
+    // try {  
+    //   ros::Time timeStamp;
+    //   tf::StampedTransform transformTf;
+    //   timeStamp.fromNSec(1000 * pointCloud->header.stamp);
 
 
-      transformListener_.waitForTransform(mapFrameId_, "foot_link0", timeStamp, ros::Duration(1.0));
-      transformListener_.lookupTransform(mapFrameId_, "foot_link0", timeStamp, transformTf);
-      poseTFToEigen(transformTf, foot0_pose_in_map);
+    //   transformListener_.waitForTransform(mapFrameId_, "base_link", timeStamp, ros::Duration(1.0));
+    //   transformListener_.lookupTransform(mapFrameId_, "base_link", timeStamp, transformTf);
+    //   poseTFToEigen(transformTf, base_pose_in_map);
 
-      transformListener_.waitForTransform(mapFrameId_, "foot_link1", timeStamp, ros::Duration(1.0));
-      transformListener_.lookupTransform(mapFrameId_, "foot_link1", timeStamp, transformTf);
-      poseTFToEigen(transformTf, foot1_pose_in_map);
+    //   // transformListener_.waitForTransform(mapFrameId_, "foot_link1", timeStamp, ros::Duration(1.0));
+    //   // transformListener_.lookupTransform(mapFrameId_, "foot_link1", timeStamp, transformTf);
+    //   // poseTFToEigen(transformTf, foot1_pose_in_map);
 
-    } catch (tf::TransformException &ex) {
-      ROS_ERROR("%s", ex.what());
-      return true;
-    }
+    // } catch (tf::TransformException &ex) {
+    //   ROS_ERROR("%s", ex.what());
+    //   return true;
+    // }
     // we can safely assume we have foot pose in sensor now
     // create two cropbox filter
     pcl::ConditionalRemoval<pcl::PointXYZRGB> foot1BoxFilter;
-    pcl::ConditionalRemoval<pcl::PointXYZRGB> foot2BoxFilter;
+    // pcl::ConditionalRemoval<pcl::PointXYZRGB> foot2BoxFilter;
     pcl::PointCloud<pcl::PointXYZRGB> tempPointCloud;
 
     Eigen::Matrix3f cropbox_rotation1;
@@ -238,10 +240,10 @@ bool SensorProcessorBase::filterPointCloudLegBox(const pcl::PointCloud<pcl::Poin
     Eigen::Vector3f cropbox_translation2, crop_min2, crop_max2;
  
     // apply first filter
-    cropbox_rotation1 = foot0_pose_in_map.rotation().cast<float>();
-    cropbox_translation1 = foot0_pose_in_map.translation().cast<float>();
-    crop_min1 = cropbox_translation1 + cropbox_rotation1* Eigen::Vector3f(-0.09,-0.09,0.05); 
-    crop_max1 = cropbox_translation1 + cropbox_rotation1* Eigen::Vector3f(0.09,0.09,0.9);
+    // cropbox_rotation1 = base_pose_in_map.rotation().cast<float>();
+    // cropbox_translation1 = base_pose_in_map.translation().cast<float>();
+    crop_min1 = Eigen::Vector3f(-0.7,-0.7,-0.3); 
+    crop_max1 = Eigen::Vector3f(0.7,0.7,1);
 
     pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond1 (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
     pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond1_or_outside_z (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
@@ -277,47 +279,47 @@ bool SensorProcessorBase::filterPointCloudLegBox(const pcl::PointCloud<pcl::Poin
     foot1BoxFilter.filter (tempPointCloud);
     pointCloud->swap(tempPointCloud);
 
-    // apply second filter    
-    cropbox_rotation2 = foot1_pose_in_map.rotation().cast<float>();
-    cropbox_translation2 = foot1_pose_in_map.translation().cast<float>(); 
-    crop_min2 = cropbox_translation2 + Eigen::Vector3f(-0.09,-0.09,0.05); 
-    crop_max2 = cropbox_translation2 + Eigen::Vector3f(0.09,0.09,0.9);
-    std::cout << crop_min2.transpose() << std::endl;
-    std::cout << crop_max2.transpose() << std::endl;
+    // // apply second filter    
+    // cropbox_rotation2 = foot1_pose_in_map.rotation().cast<float>();
+    // cropbox_translation2 = foot1_pose_in_map.translation().cast<float>(); 
+    // crop_min2 = cropbox_translation2 + Eigen::Vector3f(-0.09,-0.09,0.05); 
+    // crop_max2 = cropbox_translation2 + Eigen::Vector3f(0.09,0.09,0.9);
+    // std::cout << crop_min2.transpose() << std::endl;
+    // std::cout << crop_max2.transpose() << std::endl;
 
-    pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond2 (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
-    pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond2_or_outside_z (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
-    range_cond2_or_outside_z->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("z", pcl::ComparisonOps::LT, crop_min2(2))));
-    range_cond2_or_outside_z->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("z", pcl::ComparisonOps::GT, crop_max2(2))));
-    range_cond2 ->addCondition(range_cond2_or_outside_z);
+    // pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond2 (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
+    // pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond2_or_outside_z (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
+    // range_cond2_or_outside_z->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("z", pcl::ComparisonOps::LT, crop_min2(2))));
+    // range_cond2_or_outside_z->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("z", pcl::ComparisonOps::GT, crop_max2(2))));
+    // range_cond2 ->addCondition(range_cond2_or_outside_z);
     
-    pcl::ConditionAnd<pcl::PointXYZRGB>::Ptr range_cond22 (new pcl::ConditionAnd<pcl::PointXYZRGB> ()); 
-    pcl::ConditionAnd<pcl::PointXYZRGB>::Ptr range_cond2_and_inside_z (new pcl::ConditionAnd<pcl::PointXYZRGB> ()); 
-    range_cond2_and_inside_z->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("z", pcl::ComparisonOps::GT, crop_min2(2))));
-    range_cond2_and_inside_z->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("z", pcl::ComparisonOps::LT, crop_max2(2))));
-    range_cond22 ->addCondition(range_cond2_and_inside_z);
-    pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond2_or_outside_x (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
-    range_cond2_or_outside_x->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("x", pcl::ComparisonOps::LT, crop_min2(0))));
-    range_cond2_or_outside_x->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("x", pcl::ComparisonOps::GT, crop_max2(0))));
-    range_cond22 ->addCondition(range_cond2_or_outside_x);
-    range_cond2 ->addCondition(range_cond22);
+    // pcl::ConditionAnd<pcl::PointXYZRGB>::Ptr range_cond22 (new pcl::ConditionAnd<pcl::PointXYZRGB> ()); 
+    // pcl::ConditionAnd<pcl::PointXYZRGB>::Ptr range_cond2_and_inside_z (new pcl::ConditionAnd<pcl::PointXYZRGB> ()); 
+    // range_cond2_and_inside_z->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("z", pcl::ComparisonOps::GT, crop_min2(2))));
+    // range_cond2_and_inside_z->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("z", pcl::ComparisonOps::LT, crop_max2(2))));
+    // range_cond22 ->addCondition(range_cond2_and_inside_z);
+    // pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond2_or_outside_x (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
+    // range_cond2_or_outside_x->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("x", pcl::ComparisonOps::LT, crop_min2(0))));
+    // range_cond2_or_outside_x->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("x", pcl::ComparisonOps::GT, crop_max2(0))));
+    // range_cond22 ->addCondition(range_cond2_or_outside_x);
+    // range_cond2 ->addCondition(range_cond22);
 
-    pcl::ConditionAnd<pcl::PointXYZRGB>::Ptr range_cond23 (new pcl::ConditionAnd<pcl::PointXYZRGB> ()); 
-    range_cond23 ->addCondition(range_cond2_and_inside_z);    
-    pcl::ConditionAnd<pcl::PointXYZRGB>::Ptr range_cond2_and_inside_x (new pcl::ConditionAnd<pcl::PointXYZRGB> ()); 
-    range_cond2_and_inside_x->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("x", pcl::ComparisonOps::GT, crop_min2(0))));
-    range_cond2_and_inside_x->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("x", pcl::ComparisonOps::LT, crop_max2(0))));
-    range_cond23 ->addCondition(range_cond2_and_inside_x);
-    pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond2_or_outside_y (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
-    range_cond2_or_outside_y->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("y", pcl::ComparisonOps::LT, crop_min2(1))));
-    range_cond2_or_outside_y->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("y", pcl::ComparisonOps::GT, crop_max2(1))));
-    range_cond23 ->addCondition(range_cond2_or_outside_y);
-    range_cond2 ->addCondition(range_cond23);
+    // pcl::ConditionAnd<pcl::PointXYZRGB>::Ptr range_cond23 (new pcl::ConditionAnd<pcl::PointXYZRGB> ()); 
+    // range_cond23 ->addCondition(range_cond2_and_inside_z);    
+    // pcl::ConditionAnd<pcl::PointXYZRGB>::Ptr range_cond2_and_inside_x (new pcl::ConditionAnd<pcl::PointXYZRGB> ()); 
+    // range_cond2_and_inside_x->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("x", pcl::ComparisonOps::GT, crop_min2(0))));
+    // range_cond2_and_inside_x->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("x", pcl::ComparisonOps::LT, crop_max2(0))));
+    // range_cond23 ->addCondition(range_cond2_and_inside_x);
+    // pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond2_or_outside_y (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
+    // range_cond2_or_outside_y->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("y", pcl::ComparisonOps::LT, crop_min2(1))));
+    // range_cond2_or_outside_y->addComparison (pcl::FieldComparison<pcl::PointXYZRGB>::Ptr (new pcl::FieldComparison<pcl::PointXYZRGB>("y", pcl::ComparisonOps::GT, crop_max2(1))));
+    // range_cond23 ->addCondition(range_cond2_or_outside_y);
+    // range_cond2 ->addCondition(range_cond23);
 
-    foot2BoxFilter.setCondition(range_cond2);
-    foot2BoxFilter.setInputCloud (pointCloud);
-    foot2BoxFilter.filter (tempPointCloud);
-    pointCloud->swap(tempPointCloud);
+    // foot2BoxFilter.setCondition(range_cond2);
+    // foot2BoxFilter.setInputCloud (pointCloud);
+    // foot2BoxFilter.filter (tempPointCloud);
+    // pointCloud->swap(tempPointCloud);
     return true;
   }
   return true;
