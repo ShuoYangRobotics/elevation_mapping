@@ -242,8 +242,8 @@ bool SensorProcessorBase::filterPointCloudLegBox(const pcl::PointCloud<pcl::Poin
     // apply first filter
     // cropbox_rotation1 = base_pose_in_map.rotation().cast<float>();
     // cropbox_translation1 = base_pose_in_map.translation().cast<float>();
-    crop_min1 = Eigen::Vector3f(-0.7,-0.7,-0.3); 
-    crop_max1 = Eigen::Vector3f(0.7,0.7,1);
+    crop_min1 = Eigen::Vector3f(-0.5,-0.5,-0.45); 
+    crop_max1 = Eigen::Vector3f(0.5,0.5,0.6);
 
     pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond1 (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
     pcl::ConditionOr<pcl::PointXYZRGB>::Ptr range_cond1_or_outside_z (new pcl::ConditionOr<pcl::PointXYZRGB> ()); 
