@@ -511,6 +511,7 @@ bool ElevationMapping::initializeElevationMap() {
       tf::StampedTransform transform;
 
       // Listen to transform between mapFrameId_ and targetFrameInitSubmap_ and use z value for initialization
+        map_.setRawSubmapHeight(0, lengthInXInitSubmap_, lengthInYInitSubmap_, marginInitSubmap_);
       try{
         transformListener_.waitForTransform(mapFrameId_, targetFrameInitSubmap_,
                                 ros::Time(0), ros::Duration(5.0));
