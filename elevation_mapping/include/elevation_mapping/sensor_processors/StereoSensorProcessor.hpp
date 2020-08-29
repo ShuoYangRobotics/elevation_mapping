@@ -43,6 +43,7 @@ private:
    * @return true if successful.
    */
   bool readParameters();
+  bool readParameters2() {};
 
   /*!
    * Computes the elevation map height variances for each point in a point cloud with the

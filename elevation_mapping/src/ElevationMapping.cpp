@@ -336,7 +336,7 @@ void ElevationMapping::pointCloudCallback(
   // this is specifically linked to 
   if (rawPointCloud.header.frame_id == "camera_forward_depth_optical_frame") {
     sensorProcessor_ = first_sensorProcessor_;
-  } else if (rawPointCloud.header.frame_id == "velodyne") {
+  } else if (rawPointCloud.header.frame_id == "lio_odom") {
     sensorProcessor_ = second_sensorProcessor_;
   } else {
     sensorProcessor_ = first_sensorProcessor_;

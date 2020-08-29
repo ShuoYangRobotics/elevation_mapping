@@ -76,7 +76,8 @@ public:
    * @return true if successful.
    */
   virtual bool readParameters();
-  bool readParameters2() {};
+
+  virtual bool readParameters2() {};
 
   /*!
    * Filters the point cloud regardless of the sensor type. Removes NaN values.

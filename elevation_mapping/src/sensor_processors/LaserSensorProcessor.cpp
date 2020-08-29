@@ -51,6 +51,8 @@ bool LaserSensorProcessor::readParameters2()
   nodeHandle_.param("second_sensor_processor/min_radius", sensorParameters_["min_radius"], 0.0);
   nodeHandle_.param("second_sensor_processor/beam_angle", sensorParameters_["beam_angle"], 0.0);
   nodeHandle_.param("second_sensor_processor/beam_constant", sensorParameters_["beam_constant"], 0.0);
+  nodeHandle_.param("second_sensor_processor/sensor_frame_id", sensorFrameId_, std::string("/lio_odom")); // TODO Fail if parameters are not found.
+
   return true;
 }
 

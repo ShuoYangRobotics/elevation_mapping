@@ -5,4 +5,5 @@ second_sensor_processor/type: laser
 second_sensor_processor/min_radius: 0.018
 second_sensor_processor/beam_angle: 0.0006
 second_sensor_processor/beam_constant: 0.0015
+second_sensor_processor/sensor_frame_id: lio_odom
 second_sensor_processor/apply_leg_box: false
