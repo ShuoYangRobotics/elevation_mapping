@@ -208,17 +208,34 @@ bool ElevationMapping::readParameters()
   string sensorType;
   nodeHandle_.param("sensor_processor/type", sensorType, string("structured_light"));
   if (sensorType == "structured_light") {
-    sensorProcessor_.reset(new StructuredLightSensorProcessor(nodeHandle_, transformListener_));
+    first_sensorProcessor_.reset(new StructuredLightSensorProcessor(nodeHandle_, transformListener_));
   } else if (sensorType == "stereo") {
-    sensorProcessor_.reset(new StereoSensorProcessor(nodeHandle_, transformListener_));
+    first_sensorProcessor_.reset(new StereoSensorProcessor(nodeHandle_, transformListener_));
   } else if (sensorType == "laser") {
-    sensorProcessor_.reset(new LaserSensorProcessor(nodeHandle_, transformListener_));
+    first_sensorProcessor_.reset(new LaserSensorProcessor(nodeHandle_, transformListener_));
   } else if (sensorType == "perfect") {
-    sensorProcessor_.reset(new PerfectSensorProcessor(nodeHandle_, transformListener_));
+    first_sensorProcessor_.reset(new PerfectSensorProcessor(nodeHandle_, transformListener_));
   } else {
     ROS_ERROR("The sensor type %s is not available.", sensorType.c_str());
   }
-  if (!sensorProcessor_->readParameters()) return false;
+  if (!first_sensorProcessor_->readParameters()) return false;
+
+  nodeHandle_.param("second_sensor_processor/type", sensorType, string("structured_light"));
+  if (sensorType == "structured_light") {
+    second_sensorProcessor_.reset(new StructuredLightSensorProcessor(nodeHandle_, transformListener_));
+  } else if (sensorType == "stereo") {
+    second_sensorProcessor_.reset(new StereoSensorProcessor(nodeHandle_, transformListener_));
+  } else if (sensorType == "laser") {
+    second_sensorProcessor_.reset(new LaserSensorProcessor(nodeHandle_, transformListener_));
+  } else if (sensorType == "perfect") {
+    second_sensorProcessor_.reset(new PerfectSensorProcessor(nodeHandle_, transformListener_));
+  } else {
+    ROS_ERROR("The sensor type %s is not available.", sensorType.c_str());
+  }
+  if (!second_sensorProcessor_->readParameters2()) return false;
+
+
+
   if (!robotMotionMapUpdater_.readParameters()) return false;
 
   return true;
@@ -316,6 +333,15 @@ void ElevationMapping::pointCloudCallback(
   }
 
   // Process point cloud.
+  // this is specifically linked to 
+  if (rawPointCloud.header.frame_id == "camera_forward_depth_optical_frame") {
+    sensorProcessor_ = first_sensorProcessor_;
+  } else if (rawPointCloud.header.frame_id == "velodyne") {
+    sensorProcessor_ = second_sensorProcessor_;
+  } else {
+    sensorProcessor_ = first_sensorProcessor_;
+  }
+
   PointCloud<PointXYZRGB>::Ptr pointCloudProcessed(new PointCloud<PointXYZRGB>);
   Eigen::VectorXf measurementVariances;
   if (!sensorProcessor_->process(pointCloud, robotPoseCovariance, pointCloudProcessed,

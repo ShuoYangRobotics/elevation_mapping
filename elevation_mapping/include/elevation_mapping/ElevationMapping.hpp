@@ -249,6 +249,9 @@ class ElevationMapping
 
   //! Sensor processors.
   SensorProcessorBase::Ptr sensorProcessor_;
+  //dual sensor process added 08-28-2020
+  SensorProcessorBase::Ptr first_sensorProcessor_;
+  SensorProcessorBase::Ptr second_sensorProcessor_;
 
   //! Robot motion elevation map updater.
   RobotMotionMapUpdater robotMotionMapUpdater_;

@@ -45,6 +45,15 @@ bool LaserSensorProcessor::readParameters()
   return true;
 }
 
+bool LaserSensorProcessor::readParameters2()
+{
+  SensorProcessorBase::readParameters();
+  nodeHandle_.param("second_sensor_processor/min_radius", sensorParameters_["min_radius"], 0.0);
+  nodeHandle_.param("second_sensor_processor/beam_angle", sensorParameters_["beam_angle"], 0.0);
+  nodeHandle_.param("second_sensor_processor/beam_constant", sensorParameters_["beam_constant"], 0.0);
+  return true;
+}
+
 bool LaserSensorProcessor::computeVariances(
 		const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr pointCloud,
 		const Eigen::Matrix<double, 6, 6>& robotPoseCovariance,

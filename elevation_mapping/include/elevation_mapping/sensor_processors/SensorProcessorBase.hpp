@@ -65,7 +65,7 @@ public:
                const Eigen::Matrix<double, 6, 6>& robotPoseCovariance,
                const pcl::PointCloud<pcl::PointXYZRGB>::Ptr pointCloudOutput, Eigen::VectorXf& variances);
 
-  typedef std::unique_ptr<SensorProcessorBase> Ptr;
+  typedef std::shared_ptr<SensorProcessorBase> Ptr;
 
 	friend class ElevationMapping;
 
@@ -76,6 +76,7 @@ public:
    * @return true if successful.
    */
   virtual bool readParameters();
+  bool readParameters2() {};
 
   /*!
    * Filters the point cloud regardless of the sensor type. Removes NaN values.
