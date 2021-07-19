@@ -195,7 +195,7 @@ bool SensorProcessorBase::filterPointCloud(const pcl::PointCloud<pcl::PointXYZRG
     sor.filter (tempPointCloud);
     pointCloud->swap(tempPointCloud);
   }
-  ROS_DEBUG_THROTTLE(2, "cleanPointCloud() reduced point cloud to %i points.", static_cast<int>(pointCloud->size()));
+  ROS_INFO("cleanPointCloud() reduced point cloud to %i points.", static_cast<int>(pointCloud->size()));
   return true;
 }
 
